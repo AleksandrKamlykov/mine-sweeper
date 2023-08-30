@@ -52,4 +52,4 @@ class Menu:
         settings_menu.add_command(label="Настройки", command=self.create_setting)
         settings_menu.add_command(label="Выход", command=self.window.destroy)
 
-        menubar.add_cascade(label="file", menu=settings_menu)
+        menubar.add_cascade(label="Опции", menu=settings_menu)

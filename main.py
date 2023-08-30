@@ -3,12 +3,12 @@ import tkinter as tk
 from MyButton import MyButton
 from tkinter.messagebox import showinfo
 from Menu import Menu
+from Field import Field
 
 colors = ['#BBB', "blue", "green", "yellow", "brown", "violet", "blue", "orange"]
 
 
 class MineSweeper:
-    buttons = []
     ROW = 10
     COL = 7
     COUNT_MINES = 5
@@ -17,24 +17,9 @@ class MineSweeper:
     is_game_over = False
 
     def __init__(self):
-        self.create_field()
         self.window.title("Minesweeper")
         self.menu = Menu(self.window, self)
-
-    def create_field(self):
-        self.buttons = []
-        for row_item in range(self.ROW + 2):
-
-            row_buttons = []
-
-            for col_item in range(self.COL + 2):
-                button = MyButton(self.window, x=row_item, y=col_item, number=0, width=3,
-                                  font="Calibri 15 bold")
-                button.config(command=lambda btn=button: self.click(btn))
-                button.bind("<Button-3>", self.right_click)
-                row_buttons.append(button)
-
-            self.buttons.append(row_buttons)
+        self.field = Field(self)
 
     def right_click(self, event: tk.Event):
 
@@ -44,7 +29,7 @@ class MineSweeper:
         current_button: MyButton = event.widget
 
         if current_button["state"] == "normal":
-            current_button.config(state="disabled", text="🚩")
+            current_button.config(state="disabled", text="🚩", disabledforeground="#CC0000")
         elif current_button["text"] == "🚩":
             current_button.config(text="", state="normal")
 
@@ -54,7 +39,7 @@ class MineSweeper:
 
         for row in range(1, self.ROW + 1):
             for col in range(1, self.COL + 1):
-                button = self.buttons[row][col]
+                button = self.field.field[row][col]
 
                 button.grid(row=row, column=col, stick="NWES")
 
@@ -100,7 +85,7 @@ class MineSweeper:
         count = 1
         for row_index in range(1, self.ROW + 1):
             for col_index in range(1, self.COL + 1):
-                button: MyButton = self.buttons[row_index][col_index]
+                button: MyButton = self.field.field[row_index][col_index]
                 button.number = count
                 count += 1
                 if button.number in self.positions:
@@ -111,14 +96,14 @@ class MineSweeper:
         for row_index in range(1, self.ROW + 1):
             for col_index in range(1, self.COL + 1):
 
-                button: MyButton = self.buttons[row_index][col_index]
+                button: MyButton = self.field.field[row_index][col_index]
                 count_bombs = 0
 
                 if not button.is_mine:
 
                     for row_idx in [-1, 0, 1]:
                         for col_idx in [-1, 0, 1]:
-                            neighbour: MyButton = self.buttons[row_index + row_idx][col_index + col_idx]
+                            neighbour: MyButton = self.field.field[row_index + row_idx][col_index + col_idx]
                             if neighbour.is_mine:
                                 count_bombs += 1
 
@@ -137,7 +122,7 @@ class MineSweeper:
 
             for row in range(1, self.ROW + 1):
                 for col in range(1, self.COL + 1):
-                    button: MyButton = self.buttons[row][col]
+                    button: MyButton = self.field.field[row][col]
 
                     if button.is_mine:
                         button.config(text="*", background="black", fg="white")
@@ -164,7 +149,7 @@ class MineSweeper:
 
         for row_index in range(self.ROW + 2):
             for col_index in range(self.COL + 2):
-                button: MyButton = self.buttons[row_index][col_index]
+                button: MyButton = self.field.field[row_index][col_index]
 
                 if button['state'] == "disabled":
                     disabled += 1
@@ -176,7 +161,7 @@ class MineSweeper:
     def open_all_buttons(self):
         for row_index in range(self.ROW + 2):
             for col_index in range(self.COL + 2):
-                button: MyButton = self.buttons[row_index][col_index]
+                button: MyButton = self.field.field[row_index][col_index]
 
                 if button.is_mine:
                     button.config(text="*", background="red")
@@ -208,7 +193,7 @@ class MineSweeper:
                         # if not abs(dx - dy) == 1:
                         #     continue
 
-                        next_button: MyButton = self.buttons[x + dx][y + dy]
+                        next_button: MyButton = self.field.field[x + dx][y + dy]
 
                         if (
                                 not next_button.is_open
